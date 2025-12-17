@@ -100,6 +100,17 @@
       color: var(--accent2);
     }
 
+    /* Home headline */
+    .homeHeadline{
+      text-align:center;
+      font-weight:950;
+      letter-spacing:.3px;
+      font-size:26px;
+      color: var(--accent2);
+      margin: 6px 0 14px;
+      text-shadow: 0 14px 40px rgba(0,0,0,.60);
+    }
+
     /* Grids */
     .grid{display:grid; gap:12px;}
     .grid.twoCols{grid-template-columns: repeat(2, minmax(0,1fr));}
@@ -204,7 +215,7 @@
       transition: transform .55s ease, opacity .55s ease;
     }
 
-    /* BOX (original “real box” look) */
+    /* BOX */
     .box{
       position:absolute;
       left:50%;
@@ -408,9 +419,7 @@
 
     <!-- PAGE 1: Categories -->
     <section class="page active" data-page="home">
-      <div class="sectionTitle">
-        <span>Everything for you</span>
-      </div>
+      <div class="homeHeadline">Everything for you</div>
 
       <div class="grid twoCols" id="categoryGrid">
         <div class="card" data-category="trousers">
@@ -644,9 +653,7 @@
       previewWrap.classList.remove('packed');
       previewImg.src = state.sneakerSrc;
 
-      // reset confetti
       confetti.innerHTML = '';
-
       [...colorGrid.querySelectorAll('.colorBtn')].forEach(b => b.classList.remove('selected'));
       insightBtn.disabled = true;
 
@@ -672,12 +679,12 @@
     function spawnConfetti(){
       confetti.innerHTML = '';
       const colors = ['#f0d79a', '#d4b06a', '#ffffff', '#d93a3a'];
-      const pieces = 42;
+      const pieces = 48;
 
       for(let i=0;i<pieces;i++){
         const p = document.createElement('i');
         const left = Math.random() * 100;
-        const delay = Math.random() * 250;
+        const delay = Math.random() * 220;
         const dur = 900 + Math.random()*700;
         const sizeW = 6 + Math.random()*8;
         const sizeH = 8 + Math.random()*12;
@@ -695,7 +702,6 @@
         confetti.appendChild(p);
       }
 
-      // cleanup
       setTimeout(() => { confetti.innerHTML = ''; }, 2200);
     }
 
