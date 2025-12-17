@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Mobile Shop</title>
+  <style>
+    :root{
+      --bg:#050506;
+      --panel:#0b0b0d;
+      --panel2:#08080a;
+      --text:#f6f2e8;
+      --muted:#cdbf9a;
+      --line:rgba(212,176,106,.28);
+      --accent:#d4b06a;
+      --accent2:#f0d79a;
+      --r:22px;
+      --shadow: 0 16px 55px rgba(0,0,0,.65);
+      --goldGlow: 0 0 0 3px rgba(212,176,106,.14), 0 16px 55px rgba(0,0,0,.65);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 520px at 15% -10%, rgba(212,176,106,.30), transparent 62%),
+        radial-gradient(850px 520px at 95% 0%, rgba(212,176,106,.18), transparent 58%),
+        radial-gradient(900px 700px at 50% 110%, rgba(212,176,106,.12), transparent 58%),
+        linear-gradient(180deg, #050506 0%, #040405 55%, #030304 100%);
+      color:var(--text);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app{
+      min-height:100%;
+      max-width:520px;
+      margin:0 auto;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+    }
+
+    /* Header */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding: 6px 2px 16px;
+      position:sticky;
+      top:0;
+      background: linear-gradient(to bottom, rgba(5,5,6,.94), rgba(5,5,6,.76), transparent);
+      backdrop-filter: blur(12px);
+      z-index:10;
+    }
+    .brand{display:flex; flex-direction:column; gap:2px; line-height:1.1;}
+    .brand .title{
+      font-weight:900; letter-spacing:.3px; font-size:18px;
+      color: var(--accent2);
+      text-shadow: 0 10px 30px rgba(0,0,0,.45);
+    }
+    .brand .sub{color:var(--muted); font-size:12.5px}
+    .btn{
+      border:1px solid rgba(212,176,106,.35);
+      background: rgba(11,11,13,.80);
+      color:var(--accent2);
+      border-radius:999px;
+      padding:10px 12px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.45);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btn:active{transform: translateY(1px)}
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(240,215,154,.95), rgba(212,176,106,.85));
+      border-color: rgba(240,215,154,.55);
+      color:#120f09;
+      font-weight:950;
+      box-shadow: 0 14px 40px rgba(0,0,0,.55), 0 0 0 4px rgba(212,176,106,.14);
+    }
+    .btn.primary:disabled{opacity:.55; cursor:not-allowed;}
+    .btn.ghost{background: transparent; border-color: rgba(240,215,154,.35);}
+    .icon{width:18px;height:18px;display:inline-block}
+
+    /* Pages */
+    .page{display:none; animation: fadeIn .18s ease-out}
+    .page.active{display:block}
+    @keyframes fadeIn{from{opacity:.35; transform: translateY(4px)} to{opacity:1; transform:none}}
+
+    /* Titles */
+    .sectionTitle{
+      font-weight:950;
+      font-size:16px;
+      margin: 10px 2px 12px;
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:10px;
+      color: var(--accent2);
+    }
+
+    /* Grids */
+    .grid{display:grid; gap:12px;}
+    .grid.twoCols{grid-template-columns: repeat(2, minmax(0,1fr));}
+
+    .card{
+      border:1px solid rgba(212,176,106,.30);
+      background: linear-gradient(180deg, rgba(10,10,12,.94), rgba(7,7,9,.94));
+      border-radius: var(--r);
+      padding: 12px;
+      box-shadow: var(--goldGlow);
+      position:relative;
+      overflow:hidden;
+      cursor:pointer;
+      user-select:none;
+      min-height: 168px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }
+    .card:before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(700px 260px at 20% 0%, rgba(240,215,154,.16), transparent 58%),
+        radial-gradient(520px 220px at 90% 25%, rgba(212,176,106,.10), transparent 60%);
+      pointer-events:none;
+    }
+    .card:active{transform: translateY(1px)}
+    .card .label{
+      font-weight:950;
+      letter-spacing:.25px;
+      font-size:14.5px;
+      color: var(--accent2);
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(240,215,154,.35);
+      background: rgba(212,176,106,.10);
+      color: var(--accent2);
+      font-size:12px;
+      font-weight:800;
+      width: fit-content;
+    }
+
+    /* Category images */
+    .thumb{
+      width:100%;
+      height:140px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid rgba(240,215,154,.28);
+      display:block;
+      box-shadow: 0 12px 26px rgba(0,0,0,.55), 0 0 0 3px rgba(212,176,106,.12);
+      filter: contrast(1.02) saturate(1.02);
+    }
+
+    /* Sneakers grid page */
+    .gridSneakers{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+    .sneakerThumb{
+      width:100%;
+      height:160px;
+      object-fit: cover;
+      border-radius: 16px;
+      border: 1px solid rgba(240,215,154,.28);
+      display:block;
+      box-shadow: 0 12px 26px rgba(0,0,0,.55), 0 0 0 3px rgba(212,176,106,.12);
+    }
+
+    /* Detail */
+    .panel{
+      border:1px solid rgba(212,176,106,.30);
+      background: rgba(10,10,12,.86);
+      border-radius: var(--r);
+      padding: 14px;
+      box-shadow: var(--goldGlow);
+    }
+
+    .previewWrap{
+      position:relative;
+      border-radius: 18px;
+      border:1px solid rgba(240,215,154,.28);
+      background: radial-gradient(900px 360px at 50% 0%, rgba(212,176,106,.14), rgba(10,10,12,.88));
+      overflow:hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,.55), 0 0 0 3px rgba(212,176,106,.12);
+    }
+    .previewImg{
+      width:100%;
+      height:220px;
+      object-fit: cover;
+      display:block;
+      filter: contrast(1.02) saturate(1.02);
+      transform-origin: 50% 65%;
+      transition: transform .55s ease, opacity .55s ease;
+    }
+
+    /* BOX (original “real box” look) */
+    .box{
+      position:absolute;
+      left:50%;
+      bottom:18px;
+      transform: translateX(-50%);
+      width: 190px;
+      height: 92px;
+      border-radius: 14px;
+      border:1px solid rgba(240,215,154,.32);
+      background:
+        radial-gradient(180px 80px at 20% 10%, rgba(240,215,154,.22), transparent 55%),
+        linear-gradient(180deg, rgba(240,215,154,.14), rgba(212,176,106,.06));
+      box-shadow: 0 18px 40px rgba(0,0,0,.60);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .2s ease;
+    }
+    .box:after{
+      content:"";
+      position:absolute;
+      inset:10px 12px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(240,215,154,.18);
+      background: rgba(0,0,0,.10);
+    }
+    .boxLid{
+      position:absolute;
+      left:-6px; right:-6px;
+      top:-40px;
+      height:50px;
+      border-radius: 14px;
+      border:1px solid rgba(240,215,154,.32);
+      background:
+        radial-gradient(170px 70px at 20% 10%, rgba(240,215,154,.24), transparent 55%),
+        linear-gradient(180deg, rgba(240,215,154,.20), rgba(212,176,106,.08));
+      transform-origin: 50% 100%;
+      transform: rotateX(70deg);
+      transition: transform .55s ease;
+      box-shadow: 0 18px 34px rgba(0,0,0,.55);
+    }
+
+    /* Check */
+    .check{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      opacity:0;
+      transform: scale(.9);
+      transition: opacity .2s ease, transform .35s ease;
+      pointer-events:none;
+    }
+    .checkCircle{
+      width:76px;height:76px;border-radius:999px;
+      border:2px solid rgba(240,215,154,.70);
+      background: rgba(10,10,12,.75);
+      box-shadow: 0 16px 40px rgba(0,0,0,.70), 0 0 0 6px rgba(212,176,106,.16);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .check svg{width:34px;height:34px}
+
+    /* CONFETTI */
+    .confetti{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+      opacity:0;
+      transition: opacity .15s ease;
+    }
+    .confetti i{
+      position:absolute;
+      top:-18px;
+      width:10px;
+      height:14px;
+      border-radius:3px;
+      transform: translateY(0) rotate(0deg);
+      animation: confettiFall 1100ms linear forwards;
+    }
+    @keyframes confettiFall{
+      to { transform: translateY(320px) rotate(360deg); }
+    }
+
+    /* Packed state */
+    .previewWrap.packed .box{opacity:1;}
+    .previewWrap.packed .boxLid{transform: rotateX(0deg);}
+    .previewWrap.packed .previewImg{
+      opacity:0;
+      transform: translateY(95px) scale(.22);
+    }
+    .previewWrap.packed .check{
+      opacity:1;
+      transform: scale(1);
+      transition-delay: .45s;
+    }
+    .previewWrap.packed .confetti{
+      opacity:1;
+      transition-delay: .45s;
+    }
+
+    /* Colors */
+    .colors{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .colorBtn{
+      border:1px solid rgba(240,215,154,.28);
+      background: rgba(212,176,106,.08);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      color: var(--accent2);
+    }
+    .colorBtn:active{transform: translateY(1px)}
+    .dot{
+      width:18px;height:18px;border-radius:999px;
+      border:1px solid rgba(240,215,154,.35);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.18);
+      flex: 0 0 auto;
+    }
+    .colorName{
+      font-weight:950;
+      letter-spacing:.2px;
+      font-size:13.5px;
+      color: var(--accent2);
+    }
+    .colorBtn.selected{
+      border-color: rgba(240,215,154,.60);
+      background: rgba(240,215,154,.14);
+      box-shadow: 0 0 0 3px rgba(240,215,154,.18), 0 12px 28px rgba(0,0,0,.38);
+    }
+
+    .footerActions{display:flex; gap:10px; margin-top:14px;}
+    .footerActions .btn{flex:1; justify-content:center}
+
+    /* Toast */
+    .toast{
+      position:fixed;
+      left:50%;
+      transform: translateX(-50%);
+      bottom: max(16px, env(safe-area-inset-bottom));
+      background: rgba(10,10,12,.94);
+      border: 1px solid rgba(240,215,154,.28);
+      color: var(--accent2);
+      padding: 12px 14px;
+      border-radius: 999px;
+      box-shadow: var(--goldGlow);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 50;
+      max-width: calc(520px - 32px);
+      width: calc(100% - 32px);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .toast.show{
+      opacity:1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .toast small{color:var(--muted); font-weight:800}
+
+    .spacer{height:8px}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <button class="btn ghost" id="backBtn" aria-label="Go back" style="visibility:hidden">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back
+      </button>
+
+      <div class="brand">
+        <div class="title" id="headerTitle"></div>
+        <div class="sub" id="headerSub"></div>
+      </div>
+
+      <button class="btn" id="helpBtn" aria-label="Help">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 22a10 10 0 1 0-10-10 10 10 0 0 0 10 10Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M9.5 9a2.5 2.5 0 1 1 4.3 1.7c-.9.6-1.3 1-1.3 2.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- PAGE 1: Categories -->
+    <section class="page active" data-page="home">
+      <div class="sectionTitle">
+        <span>Everything for you</span>
+      </div>
+
+      <div class="grid twoCols" id="categoryGrid">
+        <div class="card" data-category="trousers">
+          <div>
+            <img class="thumb" src="https://i.pinimg.com/736x/7c/9e/9a/7c9e9a3a79ff2610759c619951c15703.jpg" alt="Trousers">
+            <div class="spacer"></div>
+            <div class="label">Trousers</div>
+          </div>
+          <div class="chip">Browse</div>
+        </div>
+
+        <div class="card" data-category="blouse">
+          <div>
+            <img class="thumb" src="https://i.pinimg.com/1200x/43/b5/30/43b530017dcf7d9bc59a6b69b5d0638c.jpg" alt="Blouse">
+            <div class="spacer"></div>
+            <div class="label">Blouse</div>
+          </div>
+          <div class="chip">Browse</div>
+        </div>
+
+        <div class="card" data-category="sneakers">
+          <div>
+            <img class="thumb" src="https://i.pinimg.com/1200x/2b/1c/f2/2b1cf2c41fb9f0dd98192ad5a5f3ded8.jpg" alt="Sneakers">
+            <div class="spacer"></div>
+            <div class="label">Sneakers</div>
+          </div>
+          <div class="chip">Browse</div>
+        </div>
+
+        <div class="card" data-category="accessories">
+          <div>
+            <img class="thumb" src="https://i.pinimg.com/736x/18/f5/49/18f549d91b4a6da5741f7230591dd5a4.jpg" alt="Accessories">
+            <div class="spacer"></div>
+            <div class="label">Accessories</div>
+          </div>
+          <div class="chip">Browse</div>
+        </div>
+
+        <div class="card" data-category="bag">
+          <div>
+            <img class="thumb" src="https://i.pinimg.com/1200x/53/bd/a9/53bda91772061b40423cc5c25296fe5e.jpg" alt="Bag">
+            <div class="spacer"></div>
+            <div class="label">Bag</div>
+          </div>
+          <div class="chip">Browse</div>
+        </div>
+
+        <div class="card" data-category="headdress">
+          <div>
+            <img class="thumb" src="https://i.pinimg.com/736x/4d/ff/d2/4dffd24dbd1c50aaf096de88c30f1048.jpg" alt="Headdress">
+            <div class="spacer"></div>
+            <div class="label">Headdress</div>
+          </div>
+          <div class="chip">Browse</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 2: Sneakers grid -->
+    <section class="page" data-page="sneakers">
+      <div class="sectionTitle">
+        <span>Sneakers</span>
+      </div>
+
+      <div class="gridSneakers" id="sneakerImageGrid">
+        <div class="card"><img class="sneakerThumb" src="https://i.pinimg.com/736x/65/6f/0b/656f0b9486741ee5e3399a8dce5c7188.jpg" alt=""></div>
+        <div class="card"><img class="sneakerThumb" src="https://i.pinimg.com/736x/45/9f/ab/459fab5e7b66f2cc247f8a13b838f92b.jpg" alt=""></div>
+        <div class="card"><img class="sneakerThumb" src="https://i.pinimg.com/1200x/09/21/7b/09217b3a64e2489eeba760dffc51680a.jpg" alt=""></div>
+        <div class="card"><img class="sneakerThumb" src="https://i.pinimg.com/736x/c8/7f/6e/c87f6e87aa32a673c14338337e15c65a.jpg" alt=""></div>
+        <div class="card"><img class="sneakerThumb" src="https://i.pinimg.com/736x/0d/c5/d3/0dc5d352166834c59594896c76c8e7cc.jpg" alt=""></div>
+        <div class="card"><img class="sneakerThumb" src="https://i.pinimg.com/1200x/82/91/f4/8291f4988c1e499debd32050bd68f84f.jpg" alt=""></div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: Detail -->
+    <section class="page" data-page="detail">
+      <div class="sectionTitle">
+        <span>Sneakers</span>
+      </div>
+
+      <div class="panel">
+        <div class="previewWrap" id="previewWrap">
+          <img class="previewImg" id="previewImg" src="" alt="">
+          <div class="box" aria-hidden="true"><div class="boxLid"></div></div>
+
+          <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+          <div class="check" aria-hidden="true">
+            <div class="checkCircle">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="colors" id="colorGrid">
+          <div class="colorBtn" data-color="Red">
+            <span class="dot" style="background:#d93a3a"></span>
+            <span class="colorName">Red</span>
+          </div>
+          <div class="colorBtn" data-color="Black">
+            <span class="dot" style="background:#0b0f14"></span>
+            <span class="colorName">Black</span>
+          </div>
+          <div class="colorBtn" data-color="White">
+            <span class="dot" style="background:#ffffff"></span>
+            <span class="colorName">White</span>
+          </div>
+          <div class="colorBtn" data-color="Brown">
+            <span class="dot" style="background:#7a4a2a"></span>
+            <span class="colorName">Brown</span>
+          </div>
+        </div>
+
+        <div class="footerActions">
+          <button class="btn primary" id="insightBtn" disabled>Get insights on</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="status" aria-live="polite">
+    <div>
+      <div id="toastText" style="font-weight:900">Hello</div>
+      <small id="toastSub">—</small>
+    </div>
+    <button class="btn ghost" id="toastClose" style="padding:8px 10px">OK</button>
+  </div>
+
+  <script>
+    const pages = {
+      home: document.querySelector('[data-page="home"]'),
+      sneakers: document.querySelector('[data-page="sneakers"]'),
+      detail: document.querySelector('[data-page="detail"]')
+    };
+
+    const backBtn = document.getElementById('backBtn');
+    const helpBtn = document.getElementById('helpBtn');
+    const headerTitle = document.getElementById('headerTitle');
+    const headerSub = document.getElementById('headerSub');
+
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const toastSub = document.getElementById('toastSub');
+    const toastClose = document.getElementById('toastClose');
+
+    const previewWrap = document.getElementById('previewWrap');
+    const previewImg = document.getElementById('previewImg');
+    const colorGrid = document.getElementById('colorGrid');
+    const insightBtn = document.getElementById('insightBtn');
+    const confetti = document.getElementById('confetti');
+
+    const state = {
+      history: ['home'],
+      sneakerSrc: '',
+      color: null
+    };
+
+    function setHeaderFor(page){
+      if(page === 'home'){
+        headerTitle.textContent = '';
+        headerSub.textContent = '';
+      } else if(page === 'sneakers'){
+        headerTitle.textContent = 'Sneakers';
+        headerSub.textContent = '';
+      } else if(page === 'detail'){
+        headerTitle.textContent = 'Sneakers';
+        headerSub.textContent = '';
+      }
+      backBtn.style.visibility = (page === 'home') ? 'hidden' : 'visible';
+    }
+
+    function navigate(to){
+      Object.values(pages).forEach(p => p.classList.remove('active'));
+      pages[to].classList.add('active');
+      setHeaderFor(to);
+      window.scrollTo({top:0, behavior:'instant'});
+    }
+
+    function pushPage(to){
+      const current = state.history[state.history.length - 1];
+      if(current !== to) state.history.push(to);
+      navigate(to);
+    }
+
+    function popPage(){
+      if(state.history.length <= 1) return;
+      state.history.pop();
+      navigate(state.history[state.history.length - 1]);
+    }
+
+    backBtn.addEventListener('click', popPage);
+
+    let toastTimer = null;
+    function showToast(title, sub = ''){
+      toastText.textContent = title;
+      toastSub.textContent = sub;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2300);
+    }
+    toastClose.addEventListener('click', () => toast.classList.remove('show'));
+
+    helpBtn.addEventListener('click', () => {
+      showToast('How it works', 'Tap Sneakers → choose a pair → choose a color → Get insights on.');
+    });
+
+    // Home -> Sneakers
+    document.getElementById('categoryGrid').addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if(!card) return;
+
+      const cat = card.getAttribute('data-category');
+      if(cat === 'sneakers'){
+        pushPage('sneakers');
+      } else {
+        showToast('Coming soon', '');
+      }
+    });
+
+    // Sneakers -> Detail
+    document.getElementById('sneakerImageGrid').addEventListener('click', (e) => {
+      const img = e.target.closest('img');
+      if(!img) return;
+
+      state.sneakerSrc = img.getAttribute('src');
+      state.color = null;
+
+      previewWrap.classList.remove('packed');
+      previewImg.src = state.sneakerSrc;
+
+      // reset confetti
+      confetti.innerHTML = '';
+
+      [...colorGrid.querySelectorAll('.colorBtn')].forEach(b => b.classList.remove('selected'));
+      insightBtn.disabled = true;
+
+      pushPage('detail');
+    });
+
+    function updateButton(){
+      insightBtn.disabled = !state.color;
+    }
+
+    // Color select
+    colorGrid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.colorBtn');
+      if(!btn) return;
+      if(previewWrap.classList.contains('packed')) return;
+
+      state.color = btn.getAttribute('data-color');
+      [...colorGrid.querySelectorAll('.colorBtn')].forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      updateButton();
+    });
+
+    function spawnConfetti(){
+      confetti.innerHTML = '';
+      const colors = ['#f0d79a', '#d4b06a', '#ffffff', '#d93a3a'];
+      const pieces = 42;
+
+      for(let i=0;i<pieces;i++){
+        const p = document.createElement('i');
+        const left = Math.random() * 100;
+        const delay = Math.random() * 250;
+        const dur = 900 + Math.random()*700;
+        const sizeW = 6 + Math.random()*8;
+        const sizeH = 8 + Math.random()*12;
+        const rot = Math.random()*360;
+
+        p.style.left = left + '%';
+        p.style.animationDelay = delay + 'ms';
+        p.style.animationDuration = dur + 'ms';
+        p.style.width = sizeW + 'px';
+        p.style.height = sizeH + 'px';
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.opacity = (0.65 + Math.random()*0.35).toFixed(2);
+        p.style.transform = `translateY(0) rotate(${rot}deg)`;
+
+        confetti.appendChild(p);
+      }
+
+      // cleanup
+      setTimeout(() => { confetti.innerHTML = ''; }, 2200);
+    }
+
+    // Pack + check + confetti
+    insightBtn.addEventListener('click', () => {
+      if(insightBtn.disabled) return;
+      if(previewWrap.classList.contains('packed')) return;
+
+      previewWrap.classList.add('packed');
+      insightBtn.disabled = true;
+      spawnConfetti();
+      showToast('Done', '');
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if(e.key === 'Escape') popPage();
+    });
+
+    setHeaderFor('home');
+    updateButton();
+  </script>
+</body>
+</html>
